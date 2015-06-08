@@ -56,27 +56,6 @@ public class AudioAdapter extends ArrayAdapter<Audio> {
                 viewHolder.setTitle((TextView) v.findViewById(R.id.audio_title));
                 viewHolder.setArtist((TextView) v.findViewById(R.id.audio_artist));
                 viewHolder.setPlay((ImageView) v.findViewById(R.id.image_play));
-                viewHolder.getPlay().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getContext(), "Loading... " + getPosition(audio), Toast.LENGTH_SHORT).show();
-                        if (isPlaying) {
-                            viewHolder.getPlay().setImageResource(R.drawable.pause_icon);
-                            try {
-                                mediaPlayer.reset();
-                                mediaPlayer.setDataSource(audio.getUrl().toString());
-                                mediaPlayer.prepare();
-                                mediaPlayer.start();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            viewHolder.getPlay().setImageResource(R.drawable.play_icon);
-                            mediaPlayer.pause();
-                        }
-                        isPlaying = !isPlaying;
-                    }
-                });
                 v.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) v.getTag();
