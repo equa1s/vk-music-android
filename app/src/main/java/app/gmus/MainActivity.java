@@ -32,34 +32,37 @@ import app.gmus.audio.Audio;
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Audio> audioList;
-    private ListView listView;
-    private VKResponse responseString;
     private MediaPlayer mediaPlayer;
+    private boolean clicked = true;
+    private ImageView playImage;
+    private ListView listView;
+    private int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         VKUIHelper.onCreate(this);
         setContentView(R.layout.activity_main);
-            listView = (ListView) findViewById(R.id.list_response);
-            audioList = new ArrayList<Audio>();
+        listView = (ListView) findViewById(R.id.list_response);
+            audioList = new ArrayList<>();
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setOnCompletionListener(complete);
         new VKRequest("audio.get").executeWithListener(requestListener);
         listView.setOnItemClickListener(onItem);
     }
+
 
     VKRequest.VKRequestListener requestListener = new VKRequest.VKRequestListener() {
         @Override
         public void onComplete(VKResponse response) {
             try {
-                responseString = response;
-                audioList = toAudioList(responseString);
-                Toast.makeText(getApplicationContext(), "Getting list of audios...", Toast.LENGTH_SHORT).show();
-                listView.setAdapter(new AudioAdapter(getApplicationContext(), R.id.list_item, audioList));
+                audioList = toAudioList(response);
+                listView.setAdapter(new AudioAdapter(getApplicationContext(), audioList));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            Toast.makeText(getApplicationContext(), "Getting list of audios...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -96,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected ArrayList<Audio> toAudioList(VKResponse response) throws JSONException {
-            ArrayList<Audio> audioList = new ArrayList<Audio>();
+            ArrayList<Audio> audioList = new ArrayList<>();
             JSONObject jsonObject = response.json.getJSONObject("response");
             JSONArray jsonArray = jsonObject.getJSONArray("items");
             JSONObject audio;
@@ -107,33 +110,49 @@ public class MainActivity extends AppCompatActivity {
         return audioList;
     }
 
-    boolean clicked = true;
-    // TODO: RELEASE THIS LISTENER
     ListView.OnItemClickListener onItem = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ImageView v = (ImageView) view.findViewById(R.id.image_play);
-            if(clicked) {
-                Toast.makeText(getApplicationContext(), "Position item: " + position, Toast.LENGTH_SHORT).show();
-                Audio a = audioList.get(position);
-                try {
-                    mediaPlayer.setDataSource(a.getUrl().toString());
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    v.setImageResource(R.drawable.pause_icon);
-                    clicked = false;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            playImage = (ImageView) view.findViewById(R.id.image_play);
+            pos = position;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(clicked) {
+                                Toast.makeText(getApplicationContext(), "Loading...", Toast.LENGTH_SHORT).show();
+                                Audio a = audioList.get(pos);
+                                try {
+                                    mediaPlayer.setDataSource(a.getUrl().toString());
+                                    mediaPlayer.prepare();
+                                    mediaPlayer.start();
+                                    playImage.setImageResource(R.drawable.pause_icon);
+                                    clicked = false;
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
 
-            }  else {
-                mediaPlayer.reset();
-                mediaPlayer.stop();
-                v.setImageResource(R.drawable.play_icon);
-                clicked = true;
-            }
+                            }  else {
+                                mediaPlayer.reset();
+                                mediaPlayer.stop();
+                                playImage.setVisibility(View.INVISIBLE);
+                                clicked = true;
+                            }
+                        }
+                    });
+                }
+            }).start();
+
         }
     };
 
+    MediaPlayer.OnCompletionListener complete = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            playImage.setVisibility(View.INVISIBLE);
+        }
+    };
 
 }

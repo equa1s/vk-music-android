@@ -38,7 +38,6 @@
         android:layout_width="45dp"
         android:layout_height="40dp"
         android:id="@+id/image_play"
-        android:src="@mipmap/play_icon"
         android:clickable="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"

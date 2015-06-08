@@ -1,20 +1,18 @@
 package app.gmus.adapters;
 
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ViewHolder {
 
     private TextView title;
-    private TextView artist;
-    private ImageView play;
+    private TextView artist;;
 
-    public ImageView getPlay() {
-        return play;
+    public TextView getTitle() {
+        return title;
     }
 
-    public void setPlay(ImageView play) {
-        this.play = play;
+    public void setTitle(TextView title) {
+        this.title = title;
     }
 
     public TextView getArtist() {
@@ -23,13 +21,5 @@ public class ViewHolder {
 
     public void setArtist(TextView artist) {
         this.artist = artist;
-    }
-
-    public TextView getTitle() {
-        return title;
-    }
-
-    public void setTitle(TextView title) {
-        this.title = title;
     }
 }
