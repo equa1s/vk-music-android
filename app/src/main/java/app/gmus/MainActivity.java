@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean clicked = true;
     private ImageView playImage;
     private ListView listView;
-    private int pos;
+    private int onItemClickPosition;
+    private View onItemClickView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +48,13 @@ public class MainActivity extends AppCompatActivity {
             audioList = new ArrayList<>();
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setOnCompletionListener(complete);
-        new VKRequest("audio.get").executeWithListener(requestListener);
-        listView.setOnItemClickListener(onItem);
+            mediaPlayer.setOnCompletionListener(onCompletionListener);
+        new VKRequest("audio.get").executeWithListener(vkRequestListener);
+        listView.setOnItemClickListener(onItemClickListener);
     }
 
 
-    VKRequest.VKRequestListener requestListener = new VKRequest.VKRequestListener() {
+    VKRequest.VKRequestListener vkRequestListener = new VKRequest.VKRequestListener() {
         @Override
         public void onComplete(VKResponse response) {
             try {
@@ -110,11 +111,15 @@ public class MainActivity extends AppCompatActivity {
         return audioList;
     }
 
-    ListView.OnItemClickListener onItem = new AdapterView.OnItemClickListener() {
+    /**
+     *  OnItemClickListener for main ListView in MainActivity.class
+     */
+    ListView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            playImage = (ImageView) view.findViewById(R.id.image_play);
-            pos = position;
+            onItemClickPosition = position;
+            onItemClickView = view;
+            playImage = (ImageView) onItemClickView.findViewById(R.id.image_play);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -123,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             if(clicked) {
                                 Toast.makeText(getApplicationContext(), "Loading...", Toast.LENGTH_SHORT).show();
-                                Audio a = audioList.get(pos);
+                                Audio a = audioList.get(onItemClickPosition);
                                 try {
                                     mediaPlayer.setDataSource(a.getUrl().toString());
                                     mediaPlayer.prepare();
@@ -148,10 +153,39 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    MediaPlayer.OnCompletionListener complete = new MediaPlayer.OnCompletionListener() {
+    /**
+     *  OnCompletionListener for MediaPlayer
+     *  TODO: Realize queue from current track
+     */
+    MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
+
         @Override
         public void onCompletion(MediaPlayer mp) {
+            // playImage = (ImageView) onItemClickView.findViewById(R.id.image_play);
             playImage.setVisibility(View.INVISIBLE);
+            // mediaPlayer = mp;
+            /* new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                                Toast.makeText(getApplicationContext(), "Loading...", Toast.LENGTH_SHORT).show();
+                                Audio a = audioList.get(onItemClickPosition + 1);
+                                try {
+                                    mediaPlayer.setDataSource(a.getUrl().toString());
+                                    mediaPlayer.prepare();
+                                    mediaPlayer.start();
+                                    playImage.setVisibility(View.VISIBLE);
+                                    playImage.setImageResource(R.drawable.pause_icon);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                        }
+                    });
+                }
+            }).start();*/
         }
     };
 
