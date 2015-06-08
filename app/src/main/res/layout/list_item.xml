@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Hit the road Jack!"
+        android:id="@+id/audio_title"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="7dp"
+        android:paddingTop="7dp"
+        android:paddingRight="7dp"
+        android:textColor="#c8373737"
+        android:typeface="sans"
+        android:textSize="17dp" />
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Adam Corner"
+        android:id="@+id/audio_artist"
+        android:layout_below="@+id/audio_title"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingBottom="7dp"
+        android:paddingLeft="7dp"
+        android:textColor="#96696969"
+        android:typeface="sans"
+        android:textSize="15dp" />
+
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="40dp"
+        android:id="@+id/image_play"
+        android:src="@mipmap/play_icon"
+        android:clickable="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="11dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/audio_artist"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="7dp"
+        android:paddingRight="7dp" />
+
+</RelativeLayout>
