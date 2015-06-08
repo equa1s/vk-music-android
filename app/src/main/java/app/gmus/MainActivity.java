@@ -24,7 +24,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import app.gmus.adapters.AudioAdapter;
 import app.gmus.audio.Audio;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         new VKRequest("audio.get").executeWithListener(requestListener);
-        //listView.setOnItemClickListener(onItem);
+        listView.setOnItemClickListener(onItem);
     }
 
     VKRequest.VKRequestListener requestListener = new VKRequest.VKRequestListener() {
@@ -56,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 responseString = response;
                 audioList = toAudioList(responseString);
-                listView.setAdapter(new AudioAdapter(getApplicationContext(), audioList));
+                Toast.makeText(getApplicationContext(), "Getting list of audios...", Toast.LENGTH_SHORT).show();
+                listView.setAdapter(new AudioAdapter(getApplicationContext(), R.id.list_item, audioList));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -107,21 +107,33 @@ public class MainActivity extends AppCompatActivity {
         return audioList;
     }
 
+    boolean clicked = true;
     // TODO: RELEASE THIS LISTENER
-/*    ListView.OnItemClickListener onItem = new AdapterView.OnItemClickListener() {
+    ListView.OnItemClickListener onItem = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(getApplicationContext(), "Position item: " + position, Toast.LENGTH_SHORT).show();
             ImageView v = (ImageView) view.findViewById(R.id.image_play);
-            v.setImageResource(R.drawable.pause_icon);
-            Audio a = audioList.get(position);
-            try {
-                mediaPlayer.setDataSource(a.getUrl().toString());
-                mediaPlayer.
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(clicked) {
+                Toast.makeText(getApplicationContext(), "Position item: " + position, Toast.LENGTH_SHORT).show();
+                Audio a = audioList.get(position);
+                try {
+                    mediaPlayer.setDataSource(a.getUrl().toString());
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    v.setImageResource(R.drawable.pause_icon);
+                    clicked = false;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }  else {
+                mediaPlayer.reset();
+                mediaPlayer.stop();
+                v.setImageResource(R.drawable.play_icon);
+                clicked = true;
             }
         }
-    };*/
+    };
+
 
 }

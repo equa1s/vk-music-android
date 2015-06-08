@@ -11,39 +11,57 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import app.gmus.R;
 import app.gmus.audio.Audio;
 
 public class AudioAdapter extends ArrayAdapter<Audio> {
 
-    boolean isPlaying = false;
-    MediaPlayer mediaPlayer = new MediaPlayer();
-    ViewHolder viewHolder;
-    Audio audio;
+    private boolean isPlaying = false;
+    private MediaPlayer mediaPlayer = new MediaPlayer();
+    private ViewHolder viewHolder = new ViewHolder();
+    private ArrayList<Audio> audios;
+    Audio audio = null;
 
-    public AudioAdapter(Context context, List<Audio> audios) {
-        super(context, R.layout.list_item, audios);
+    public AudioAdapter(Context context, int id, ArrayList<Audio> audios) {
+        super(context, id, audios);
+        this.audios = audios;
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnCompletionListener(complete);
+    }
+
+    @Override
+    public Audio getItem(int position) {
+        return super.getItem(position);
+    }
+
+    @Override
+    public int getPosition(Audio item) {
+        return super.getPosition(item);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        audio = getItem(position);
-        if(convertView == null) {
-                viewHolder = new ViewHolder();
+        View v = convertView;
+        audio = audios.get(position);
+        if(v == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-                convertView = inflater.inflate(R.layout.list_item, parent, false);
-                viewHolder.title = (TextView) convertView.findViewById(R.id.audio_title);
-                viewHolder.artist = (TextView) convertView.findViewById(R.id.audio_artist);
-                viewHolder.play = (ImageView) convertView.findViewById(R.id.image_play);
-                viewHolder.play.setOnClickListener(new View.OnClickListener() {
+                v = inflater.inflate(R.layout.list_item, null);
+                viewHolder.setTitle((TextView) v.findViewById(R.id.audio_title));
+                viewHolder.setArtist((TextView) v.findViewById(R.id.audio_artist));
+                viewHolder.setPlay((ImageView) v.findViewById(R.id.image_play));
+                viewHolder.getPlay().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(getContext(), "Position: " + getPosition(audio), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Loading... " + getPosition(audio), Toast.LENGTH_SHORT).show();
                         if (isPlaying) {
-                            viewHolder.play.setImageResource(R.drawable.pause_icon);
+                            viewHolder.getPlay().setImageResource(R.drawable.pause_icon);
                             try {
                                 mediaPlayer.reset();
                                 mediaPlayer.setDataSource(audio.getUrl().toString());
@@ -53,33 +71,27 @@ public class AudioAdapter extends ArrayAdapter<Audio> {
                                 e.printStackTrace();
                             }
                         } else {
-                            viewHolder.play.setImageResource(R.drawable.play_icon);
+                            viewHolder.getPlay().setImageResource(R.drawable.play_icon);
                             mediaPlayer.pause();
                         }
                         isPlaying = !isPlaying;
                     }
                 });
-                convertView.setTag(viewHolder);
+                v.setTag(viewHolder);
         } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+            viewHolder = (ViewHolder) v.getTag();
         }
-        viewHolder.title.setText(audio.getTitle());
-        viewHolder.artist.setText(audio.getArtist());
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                viewHolder.play.setImageResource(R.drawable.play_icon);
-            }
-        });
-
-        return convertView;
+        viewHolder.getTitle().setText(audio.getTitle());
+        viewHolder.getArtist().setText(audio.getArtist());
+        return v;
     }
 
-    private static class ViewHolder {
-        TextView title;
-        TextView artist;
-        ImageView play;
-    }
+
+    MediaPlayer.OnCompletionListener complete = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            viewHolder.getPlay().setImageResource(R.drawable.play_icon);
+        }
+    };
 
 }
