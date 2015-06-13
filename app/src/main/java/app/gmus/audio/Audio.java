@@ -7,16 +7,12 @@ public class Audio {
 
     private String artist;
     private String title;
-    private URL url;
+    private String url;
 
     public Audio(String artist, String title, String url) {
         this.artist = artist;
         this.title = title;
-        try {
-            this.url = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        this.url = url;
     }
 
     public String getArtist() {
@@ -35,11 +31,11 @@ public class Audio {
         this.title = title;
     }
 
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
 
-    public void setUrl(URL url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 

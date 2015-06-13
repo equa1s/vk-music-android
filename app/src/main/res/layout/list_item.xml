@@ -32,12 +32,12 @@
         android:paddingLeft="7dp"
         android:textColor="#96696969"
         android:typeface="sans"
-        android:textSize="15dp" />
+        android:textSize="15sp" />
 
     <ImageView
         android:layout_width="45dp"
         android:layout_height="40dp"
-        android:id="@+id/image_play"
+        android:id="@+id/show_audio_status"
         android:clickable="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"

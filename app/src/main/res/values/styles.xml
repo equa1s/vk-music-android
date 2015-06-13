@@ -1,8 +1,21 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Widget.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+
     </style>
 
+    <style name="Widget.ActionBar.Logo">
+        <item name="android:logo">@drawable/ic_drawer</item>
+    </style>
+
+    <style name="Theme.AnApp" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/Widget.ActionBar</item>
+        <!-- ... -->
+    </style>
+
+    <style name="Theme.AnApp.Logo">
+        <item name="android:actionBarStyle">@style/Widget.ActionBar.Logo</item>
+        <!-- ... -->
+    </style>
 </resources>

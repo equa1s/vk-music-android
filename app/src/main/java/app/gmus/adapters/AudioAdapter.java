@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import app.gmus.R;
 import app.gmus.audio.Audio;
@@ -15,10 +15,10 @@ import app.gmus.audio.Audio;
 public class AudioAdapter extends ArrayAdapter<Audio> {
 
     private ViewHolder viewHolder;
-    private ArrayList<Audio> audios;
+    private List<Audio> audios;
     Audio audio = null;
 
-    public AudioAdapter(Context context, ArrayList<Audio> audios) {
+    public AudioAdapter(Context context, List<Audio> audios) {
         super(context, R.layout.list_item, audios);
         this.audios = audios;
     }

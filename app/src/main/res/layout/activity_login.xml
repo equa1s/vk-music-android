@@ -2,12 +2,17 @@
 <RelativeLayout android:id="@+id/relative_layout_login_activity"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#ffffff">
 
-    <Button android:id="@+id/login_with_vk"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/action_sign_in_short" />
-
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="65dp"
+        android:text="Sign in with VK"
+        android:id="@+id/sign_in_with_vk"
+        android:layout_centerVertical="true"
+        android:background="#ff45668e"
+        android:clickable="true"
+        android:textColor="#ffffff"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

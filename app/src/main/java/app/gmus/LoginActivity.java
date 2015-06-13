@@ -28,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         VKUIHelper.onCreate(this);
@@ -38,9 +37,11 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         String[] fingerprint = VKUtil.getCertificateFingerprint(this, this.getPackageName());
-        Log.d("Fingerprint", fingerprint[0]);
+        if (fingerprint != null) {
+            Log.d("Fingerprint", fingerprint[0]);
+        }
 
-        login = (Button) findViewById(R.id.login_with_vk);
+        login = (Button) findViewById(R.id.sign_in_with_vk);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

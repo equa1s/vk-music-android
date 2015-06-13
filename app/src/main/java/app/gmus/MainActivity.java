@@ -1,13 +1,21 @@
 package app.gmus;
 
-
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.media.AsyncPlayer;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,8 +30,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import app.gmus.adapters.AudioAdapter;
 import app.gmus.audio.Audio;
@@ -31,39 +39,49 @@ import app.gmus.audio.Audio;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<Audio> audioList;
-    private MediaPlayer mediaPlayer;
-    private boolean clicked = true;
-    private ImageView playImage;
+    private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
+    private ArrayAdapter<String> mDrawerAdapter;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private String mActivityTitle;
+
+    private List<Audio> audioList = new ArrayList<>();
     private ListView listView;
-    private int onItemClickPosition;
-    private View onItemClickView;
+    private AsyncPlayer asyncPlayer = new AsyncPlayer("");
+    private boolean isPlaying = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         VKUIHelper.onCreate(this);
         setContentView(R.layout.activity_main);
+
+        mDrawerList = (ListView) findViewById(R.id.navList);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mActivityTitle = getTitle().toString();
+
         listView = (ListView) findViewById(R.id.list_response);
-            audioList = new ArrayList<>();
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setOnCompletionListener(onCompletionListener);
         new VKRequest("audio.get").executeWithListener(vkRequestListener);
         listView.setOnItemClickListener(onItemClickListener);
-    }
 
+        addDrawerItems();
+        setupDrawer();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+    }
 
     VKRequest.VKRequestListener vkRequestListener = new VKRequest.VKRequestListener() {
         @Override
         public void onComplete(VKResponse response) {
             try {
                 audioList = toAudioList(response);
-                listView.setAdapter(new AudioAdapter(getApplicationContext(), audioList));
+                AudioAdapter audioAdapter = new AudioAdapter(getApplicationContext(), audioList);
+                listView.setAdapter(audioAdapter);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(getApplicationContext(), "Getting list of audios...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -78,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onProgress(VKRequest.VKProgressType progressType, long bytesLoaded, long bytesTotal) {
-            super.onProgress(progressType, bytesLoaded, bytesTotal);
         }
     };
 
@@ -92,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         VKUIHelper.onDestroy(this);
+        if(asyncPlayer != null) {
+            asyncPlayer.stop();
+        }
     }
 
     @Override
@@ -111,82 +131,85 @@ public class MainActivity extends AppCompatActivity {
         return audioList;
     }
 
-    /**
-     *  OnItemClickListener for main ListView in MainActivity.class
-     */
     ListView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            onItemClickPosition = position;
-            onItemClickView = view;
-            playImage = (ImageView) onItemClickView.findViewById(R.id.image_play);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(clicked) {
-                                Toast.makeText(getApplicationContext(), "Loading...", Toast.LENGTH_SHORT).show();
-                                Audio a = audioList.get(onItemClickPosition);
-                                try {
-                                    mediaPlayer.setDataSource(a.getUrl().toString());
-                                    mediaPlayer.prepare();
-                                    mediaPlayer.start();
-                                    playImage.setImageResource(R.drawable.pause_icon);
-                                    clicked = false;
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }  else {
-                                mediaPlayer.reset();
-                                mediaPlayer.stop();
-                                playImage.setVisibility(View.INVISIBLE);
-                                clicked = true;
-                            }
-                        }
-                    });
-                }
-            }).start();
-
+            Audio a = audioList.get(position);
+            ImageView playImage = (ImageView) view.findViewById(R.id.show_audio_status);
+            if(isPlaying) {
+                asyncPlayer.stop();
+                playImage.setVisibility(View.INVISIBLE);
+            } else {
+                asyncPlayer.play(getApplicationContext(), Uri.parse(a.getUrl()), false, AudioManager.STREAM_MUSIC);
+                playImage.setVisibility(View.VISIBLE);
+                playImage.setImageResource(R.drawable.ic_action_pause);
+            }
+            isPlaying = !isPlaying;
         }
     };
 
-    /**
-     *  OnCompletionListener for MediaPlayer
-     *  TODO: Realize queue from current track
-     */
-    MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
+    private void addDrawerItems() {
+        final String[] menuArray = getResources().getStringArray(R.array.drawer_array);
+        mDrawerAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, menuArray);
+        mDrawerList.setAdapter(mDrawerAdapter);
 
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-            // playImage = (ImageView) onItemClickView.findViewById(R.id.image_play);
-            playImage.setVisibility(View.INVISIBLE);
-            // mediaPlayer = mp;
-            /* new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                                Toast.makeText(getApplicationContext(), "Loading...", Toast.LENGTH_SHORT).show();
-                                Audio a = audioList.get(onItemClickPosition + 1);
-                                try {
-                                    mediaPlayer.setDataSource(a.getUrl().toString());
-                                    mediaPlayer.prepare();
-                                    mediaPlayer.start();
-                                    playImage.setVisibility(View.VISIBLE);
-                                    playImage.setImageResource(R.drawable.pause_icon);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), menuArray[position], Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-                        }
-                    });
-                }
-            }).start();*/
+    private void setupDrawer() {
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                getSupportActionBar().setTitle(mActivityTitle);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getSupportActionBar().setTitle(R.string.drawer_menu_title);
+            }
+        };
+
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+    }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onPostCreate(savedInstanceState, persistentState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        // Activate the navigation drawer toggle
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
-    };
 
+        return super.onOptionsItemSelected(item);
+    }
 }

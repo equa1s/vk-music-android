@@ -3,4 +3,12 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">Login VMusic</string>
     <string name="action_sign_in_short">Sign in with VK</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="drawer_menu_title">Menu</string>
+    <string-array name="drawer_array">
+        <item>SD Card music</item>
+        <item>VK music</item>
+        <item>Exit</item>
+    </string-array>
 </resources>
