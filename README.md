@@ -1,4 +1,5 @@
-# vmusic
+# VMusic
+Listen to music from your page of social network http://vk.com
 # Start Activity
 ![alt tag](http://cs624926.vk.me/v624926820/48e88/SwX6NyPV0AU.jpg)
 # Login to vk.com
